@@ -70,7 +70,15 @@ export default class Processor {
           key = value
         }
         if (_.has(doc, key)) {
-          _.set(obj, value, _.get(doc, key))
+            if(value == "@unix" ){
+              _.set(obj, key, _.get(doc, key)*1000)
+            }else{
+              _.set(obj, value, _.get(doc, key))
+            }
+        }else{
+              if ( value == "@unix" && isESDoc) {
+                     _.set(obj, oldKey, _.get(doc, oldKey))
+              }
         }
         return obj
       },
@@ -110,12 +118,20 @@ export default class Processor {
     unset: { [key: string]: any } = {},
   ): ESDoc {
     _.forEach(this.task.transform.mapping, (value, key) => {
-      if (_.get(unset, key)) {
-        _.unset(doc, value)
-      }
-      if (_.has(set, key)) {
-        _.set(doc, value, _.get(set, key))
-      }
+         if (_.get(unset, key)) {
+              if( value == "@unix") {
+                      _.unset(doc, key);
+              }else{
+                      _.unset(doc, value);
+              }
+          }
+          if (_.has(set, key)) {
+              if( value == "@unix") {
+                      _.set(doc, key, _.get(set, key) * 1000);
+              }else{
+                      _.set(doc, value, _.get(set, key));
+              }
+          }
     })
     return doc
   }
